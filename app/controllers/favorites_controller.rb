@@ -2,19 +2,29 @@ class FavoritesController < ApplicationController
   def create
     book = Book.find(params[:book_id])
     favorite = current_user.favorites.new(book_id: book.id)
-    favorite.save
+    if favorite.save
+      respond_to do |format|
+        format.html { redirect_to book_path(book), notice: 'Book added to favorites.' }
+        format.js   # 追加：create.js.erbを呼び出す
+      end
+    else
+      # エラー処理
+    end
   end
 
   def destroy
     @book = Book.find(params[:book_id])
     favorite = current_user.favorites.find_by(book_id: @book.id)
 
-    # favorite が存在するか確認してから destroy メソッドを呼ぶ
     if favorite
       favorite.destroy
+      respond_to do |format|
+        format.html { redirect_to book_path(@book), notice: 'Book removed from favorites.' }
+        format.js   # 追加：destroy.js.erbを呼び出す
+      end
     else
-      # おそらくエラーメッセージを設定するか、何か他の処理を行う
       flash[:alert] = "Favorite not found."
+      # エラー処理
     end
   end
 end
