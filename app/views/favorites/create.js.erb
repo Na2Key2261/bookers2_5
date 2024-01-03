@@ -1,5 +1,40 @@
-<% if book.favorited_by?(current_user) %>
-  $("#favorite_btn_<%= book.id %>").html("<%= j(render 'favorites/btn', book: book) %>");
-<% else %>
-  // お気に入りされていない場合の処理
-<% end %>
+console.log("Create.js.erb executed!");
+
+$(document).ready(function() {
+  console.log("Document is ready!");
+
+  $(document).ajaxSuccess(function(event, xhr, settings) {
+    console.log("Ajax request succeeded!");
+  });
+
+  $(document).ajaxError(function(event, xhr, settings, error) {
+    console.log("Ajax request failed!");
+    console.log("Error:", error);
+  });
+  
+  <% if @book.present? %>
+    var bookId = <%= @book.id %>; // 追加
+    var favoriteBtn = $("#favorite_btn_" + bookId); // 追加
+
+    $.ajax({
+      type: "POST",
+      url: "<%= book_favorites_path(@book) %>",
+      dataType: "script",
+      success: function(data) {
+        console.log("Ajax request succeeded!");
+        console.log("Data:", data);
+        
+        // 以下に、いいねの表示を変更するコードを追加
+        if (favoriteBtn.length > 0) {
+          favoriteBtn.html(data);
+        }
+      },
+      error: function(xhr, status, error) {
+        console.log("Ajax request failed!");
+        console.log("Error:", error);
+      }
+    });
+  <% else %>
+    console.log("Error: @book is nil.");
+  <% end %>
+});
